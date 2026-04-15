@@ -1,0 +1,600 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>허리 펴! 알리미</title>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;700;900&display=swap" rel="stylesheet">
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --bg: #FFF5F8;
+    --card: #ffffff;
+    --accent: #FF6B9D;
+    --accent2: #FF9AC1;
+    --text: #2D1B2E;
+    --muted: #9A7BA0;
+    --green: #4CAF50;
+  }
+
+  body {
+    font-family: 'Noto Sans KR', sans-serif;
+    background: var(--bg);
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 24px;
+    background-image: radial-gradient(circle at 20% 20%, #FFD6E7 0%, transparent 50%),
+                      radial-gradient(circle at 80% 80%, #E8D5FF 0%, transparent 50%);
+  }
+
+  .container {
+    width: 100%;
+    max-width: 400px;
+  }
+
+  .hero {
+    text-align: center;
+    margin-bottom: 28px;
+    animation: fadeDown 0.6s ease both;
+  }
+
+  .spine-icon {
+    font-size: 72px;
+    display: block;
+    margin-bottom: 12px;
+    animation: bounce 2s ease-in-out infinite;
+  }
+
+  @keyframes bounce {
+    0%, 100% { transform: translateY(0); }
+    50% { transform: translateY(-8px); }
+  }
+
+  .hero h1 {
+    font-size: 28px;
+    font-weight: 900;
+    color: var(--text);
+    letter-spacing: -0.5px;
+    line-height: 1.2;
+  }
+
+  .hero h1 span {
+    color: var(--accent);
+  }
+
+  .hero p {
+    margin-top: 8px;
+    font-size: 14px;
+    color: var(--muted);
+  }
+
+  .card {
+    background: var(--card);
+    border-radius: 20px;
+    padding: 20px;
+    margin-bottom: 14px;
+    box-shadow: 0 4px 20px rgba(255,107,157,0.08);
+    animation: fadeUp 0.5s ease both;
+  }
+
+  .card:nth-child(1) { animation-delay: 0.1s; }
+  .card:nth-child(2) { animation-delay: 0.2s; }
+  .card:nth-child(3) { animation-delay: 0.3s; }
+
+  @keyframes fadeUp {
+    from { opacity: 0; transform: translateY(16px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  @keyframes fadeDown {
+    from { opacity: 0; transform: translateY(-12px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  .card-label {
+    font-size: 11px;
+    font-weight: 700;
+    color: var(--muted);
+    letter-spacing: 0.8px;
+    text-transform: uppercase;
+    margin-bottom: 10px;
+  }
+
+  input[type="text"] {
+    width: 100%;
+    border: 1.5px solid #F0D6E8;
+    border-radius: 12px;
+    padding: 10px 14px;
+    font-size: 15px;
+    font-family: 'Noto Sans KR', sans-serif;
+    color: var(--text);
+    background: var(--bg);
+    outline: none;
+    transition: border-color 0.2s;
+  }
+
+  input[type="text"]:focus {
+    border-color: var(--accent);
+  }
+
+  .preview-bubble {
+    margin-top: 10px;
+    background: var(--accent);
+    color: white;
+    border-radius: 14px 14px 14px 4px;
+    padding: 10px 14px;
+    font-size: 14px;
+    font-weight: 700;
+    display: inline-block;
+    max-width: 100%;
+  }
+
+  .interval-row {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+  }
+
+  input[type="range"] {
+    flex: 1;
+    -webkit-appearance: none;
+    height: 4px;
+    border-radius: 4px;
+    background: #F0D6E8;
+    outline: none;
+  }
+
+  input[type="range"]::-webkit-slider-thumb {
+    -webkit-appearance: none;
+    width: 20px;
+    height: 20px;
+    border-radius: 50%;
+    background: var(--accent);
+    cursor: pointer;
+    box-shadow: 0 2px 8px rgba(255,107,157,0.4);
+  }
+
+  .interval-val {
+    font-size: 15px;
+    font-weight: 700;
+    color: var(--accent);
+    min-width: 40px;
+    text-align: right;
+  }
+
+  .start-btn {
+    width: 100%;
+    padding: 16px;
+    border: none;
+    border-radius: 16px;
+    background: var(--accent);
+    color: white;
+    font-size: 16px;
+    font-weight: 900;
+    font-family: 'Noto Sans KR', sans-serif;
+    cursor: pointer;
+    letter-spacing: -0.3px;
+    transition: transform 0.15s, box-shadow 0.15s;
+    box-shadow: 0 6px 20px rgba(255,107,157,0.35);
+    animation: fadeUp 0.5s 0.4s ease both;
+  }
+
+  .start-btn:active { transform: scale(0.97); }
+
+  .start-btn:hover {
+    box-shadow: 0 8px 24px rgba(255,107,157,0.45);
+    transform: translateY(-1px);
+  }
+
+  .stop-btn {
+    background: #f5f5f5;
+    color: var(--muted);
+    box-shadow: none;
+  }
+
+  .stop-btn:hover {
+    box-shadow: none;
+    transform: none;
+    background: #eee;
+  }
+
+  .warn-box {
+    background: #FFF3CD;
+    border: 1px solid #FFD700;
+    border-radius: 12px;
+    padding: 12px 14px;
+    font-size: 13px;
+    color: #7A5A00;
+    margin-bottom: 14px;
+    display: none;
+    animation: fadeUp 0.3s ease both;
+  }
+
+  .log-area {
+    margin-top: 20px;
+    animation: fadeUp 0.5s 0.5s ease both;
+  }
+
+  .log-label {
+    font-size: 11px;
+    font-weight: 700;
+    color: var(--muted);
+    letter-spacing: 0.8px;
+    text-transform: uppercase;
+    margin-bottom: 10px;
+  }
+
+  .log-list {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    max-height: 140px;
+    overflow-y: auto;
+  }
+
+  .log-item {
+    background: white;
+    border-radius: 10px;
+    padding: 8px 12px;
+    font-size: 13px;
+    color: var(--text);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.04);
+    animation: fadeUp 0.3s ease both;
+  }
+
+  .log-time {
+    font-size: 11px;
+    color: var(--muted);
+  }
+
+  .status-dot {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background: #ddd;
+    display: inline-block;
+    margin-right: 6px;
+    transition: background 0.3s;
+  }
+
+  .status-dot.on {
+    background: var(--green);
+    box-shadow: 0 0 0 3px rgba(76,175,80,0.2);
+    animation: pulse 1.5s ease-in-out infinite;
+  }
+
+  @keyframes pulse {
+    0%, 100% { box-shadow: 0 0 0 3px rgba(76,175,80,0.2); }
+    50% { box-shadow: 0 0 0 6px rgba(76,175,80,0.08); }
+  }
+
+  .status-text {
+    font-size: 12px;
+    color: var(--muted);
+    display: flex;
+    align-items: center;
+    margin-bottom: 20px;
+  }
+
+  .how-to {
+    background: white;
+    border-radius: 16px;
+    padding: 16px 18px;
+    margin-top: 14px;
+    font-size: 13px;
+    color: var(--muted);
+    line-height: 1.8;
+    box-shadow: 0 2px 12px rgba(0,0,0,0.04);
+    animation: fadeUp 0.5s 0.6s ease both;
+  }
+
+  .how-to strong { color: var(--text); }
+
+  .faq-section {
+    margin-top: 20px;
+    animation: fadeUp 0.5s 0.7s ease both;
+  }
+
+  .faq-label {
+    font-size: 11px;
+    font-weight: 700;
+    color: var(--muted);
+    letter-spacing: 0.8px;
+    text-transform: uppercase;
+    margin-bottom: 10px;
+  }
+
+  .faq-item {
+    background: white;
+    border-radius: 16px;
+    margin-bottom: 8px;
+    box-shadow: 0 2px 12px rgba(0,0,0,0.04);
+    overflow: hidden;
+  }
+
+  .faq-q {
+    width: 100%;
+    background: none;
+    border: none;
+    padding: 14px 18px;
+    font-size: 14px;
+    font-weight: 700;
+    font-family: 'Noto Sans KR', sans-serif;
+    color: var(--text);
+    cursor: pointer;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    text-align: left;
+    transition: background 0.15s;
+  }
+
+  .faq-q:hover { background: #FFF5F8; }
+
+  .faq-arrow {
+    font-size: 12px;
+    color: var(--accent);
+    transition: transform 0.25s;
+    flex-shrink: 0;
+    margin-left: 8px;
+  }
+
+  .faq-arrow.open { transform: rotate(180deg); }
+
+  .faq-a {
+    display: none;
+    padding: 0 18px 14px;
+    font-size: 13px;
+    color: var(--muted);
+    line-height: 1.9;
+    border-top: 1px solid #FFF0F5;
+  }
+
+  .faq-a.open { display: block; }
+
+  .faq-a strong { color: var(--text); }
+
+  .faq-a code {
+    display: block;
+    background: #FFF0F5;
+    border-radius: 8px;
+    padding: 8px 12px;
+    font-size: 12px;
+    color: var(--accent);
+    font-family: monospace;
+    margin: 6px 0;
+    word-break: break-all;
+  }
+
+  .faq-step {
+    display: flex;
+    gap: 8px;
+    align-items: flex-start;
+    margin: 4px 0;
+  }
+
+  .faq-num {
+    background: var(--accent);
+    color: white;
+    border-radius: 50%;
+    width: 18px;
+    height: 18px;
+    font-size: 11px;
+    font-weight: 700;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    margin-top: 2px;
+  }
+</style>
+</head>
+<body>
+
+<div class="container">
+  <div class="hero">
+    <span class="spine-icon">🧘</span>
+    <h1>지금 <span>허리</span> 펴고 있어?</h1>
+    <p>원하는 시간으로 설정 후 알림으로 자세를 바로잡아요</p>
+  </div>
+
+  <div id="warn-box" class="warn-box">
+    ⚠️ 알림 권한이 없어요. 주소창 왼쪽 자물쇠 아이콘을 눌러 알림을 허용해주세요.
+  </div>
+
+  <div class="status-text">
+    <span class="status-dot" id="status-dot"></span>
+    <span id="status-text">꺼짐</span>
+  </div>
+
+  <div class="card">
+    <div class="card-label">받는 사람</div>
+    <input type="text" id="name" value="" placeholder="ex) 장원영" oninput="updatePreview()" />
+  </div>
+
+  <div class="card">
+    <div class="card-label">알림 메시지</div>
+    <input type="text" id="msg" value="" placeholder="ex) 허리 펴!" oninput="updatePreview()" />
+    <div style="margin-top:10px;">
+      <span class="preview-bubble" id="preview-bubble">ex) 장원영, 허리 펴!</span>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-label">알림 간격</div>
+    <div class="interval-row">
+      <input type="range" min="1" max="120" value="60" step="1" id="interval-slider" oninput="updateInterval()" />
+      <span class="interval-val" id="interval-val">60분</span>
+    </div>
+  </div>
+
+  <button class="start-btn" id="main-btn" onclick="toggleAlarm()">🔔 알림 시작하기</button>
+
+  <div class="log-area">
+    <div class="log-label">알림 기록</div>
+    <div class="log-list" id="log-list">
+      <div class="log-item"><span style="color:var(--muted);font-size:13px;">아직 알림이 없어요 🕊️</span></div>
+    </div>
+  </div>
+
+  <div class="how-to">
+    <strong>처음이세요?</strong><br>
+    시작 버튼 누르고 → <strong>허용</strong> 클릭하면 끝!<br>
+    탭을 백그라운드에 두고 다른 작업을 해도 알림이 와요.<br>
+    탭을 닫으면 알림이 멈춰요.
+  </div>
+
+  <div class="faq-section">
+    <div class="faq-label">자주 묻는 질문</div>
+
+    <div class="faq-item">
+      <button class="faq-q" onclick="toggleFaq(this)">
+        Q. 윈도우에서 어떻게 설정하나요?
+        <span class="faq-arrow">▼</span>
+      </button>
+      <div class="faq-a">
+        <div style="margin-bottom:10px;"><strong>🌐 크롬 알림 허용</strong></div>
+        <div class="faq-step"><span class="faq-num">1</span><span>크롬 주소창에 아래를 복붙해서 접속</span></div>
+        <code>chrome://settings/content/notifications</code>
+        <div class="faq-step"><span class="faq-num">2</span><span>이 사이트 주소가 <strong>허용됨</strong> 목록에 있는지 확인. 없으면 <strong>추가</strong> 클릭</span></div>
+        <div style="margin: 10px 0 6px;"><strong>🪟 윈도우 시스템 설정</strong></div>
+        <div class="faq-step"><span class="faq-num">3</span><span><strong>윈도우 설정</strong> → <strong>시스템</strong> → <strong>알림</strong> → 목록에서 <strong>Google Chrome</strong> 찾아서 켜기</span></div>
+        <div class="faq-step"><span class="faq-num">4</span><span><strong>집중 지원</strong>이 켜져있으면 알림이 막혀요 → <strong>끄기</strong>로 변경</span></div>
+        <div style="margin: 10px 0 6px;"><strong>🔷 엣지(Edge) 사용 시</strong></div>
+        <div class="faq-step"><span class="faq-num">5</span><span>엣지 주소창에 아래를 복붙해서 접속</span></div>
+        <code>edge://settings/content/notifications</code>
+        <div class="faq-step"><span class="faq-num">6</span><span>이 사이트 주소 <strong>허용됨</strong> 목록에 추가 후 위 3~4번 동일하게 진행</span></div>
+      </div>
+    </div>
+
+    <div class="faq-item">
+      <button class="faq-q" onclick="toggleFaq(this)">
+        Q. Mac 크롬에서 알림이 안 와요
+        <span class="faq-arrow">▼</span>
+      </button>
+      <div class="faq-a">
+        <div style="margin-bottom:10px;"><strong>🌐 크롬 알림 허용</strong></div>
+        <div class="faq-step"><span class="faq-num">1</span><span>크롬 주소창에 아래를 복붙해서 접속</span></div>
+        <code>chrome://settings/content/notifications</code>
+        <div class="faq-step"><span class="faq-num">2</span><span>이 사이트가 <strong>허용됨</strong> 목록에 있는지 확인. 없으면 <strong>추가</strong> 클릭</span></div>
+        <div style="margin: 10px 0 6px;"><strong>🍎 맥 시스템 설정</strong></div>
+        <div class="faq-step"><span class="faq-num">3</span><span><strong>시스템 설정</strong> → <strong>알림</strong> → 목록에서 <strong>Google Chrome</strong> 찾아서 <strong>알림 허용 켜기</strong></span></div>
+        <div class="faq-step"><span class="faq-num">4</span><span>오른쪽 상단 메뉴바에서 <strong>집중 모드</strong>가 켜져있으면 알림이 막혀요 → 꺼주세요</span></div>
+        <div class="faq-step"><span class="faq-num">5</span><span>그래도 안 되면 크롬 주소창에 아래 복붙 후 <strong>Enabled</strong>로 변경하고 재시작</span></div>
+        <code>chrome://flags/#enable-native-notifications</code>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<script>
+let timer = null;
+let running = false;
+
+function updatePreview() {
+  const name = document.getElementById('name').value || '친구';
+  const msg = document.getElementById('msg').value || '허리 펴!';
+  document.getElementById('preview-bubble').textContent = name + ', ' + msg;
+}
+
+function updateInterval() {
+  const v = document.getElementById('interval-slider').value;
+  document.getElementById('interval-val').textContent = v + '분';
+}
+
+async function toggleAlarm() {
+  if (running) {
+    stopAlarm();
+  } else {
+    await startAlarm();
+  }
+}
+
+async function startAlarm() {
+  if (!('Notification' in window)) {
+    alert('이 브라우저는 알림을 지원하지 않아요. 크롬 브라우저를 사용해주세요!');
+    return;
+  }
+
+  let perm = Notification.permission;
+  if (perm === 'denied') {
+    document.getElementById('warn-box').style.display = 'block';
+    return;
+  }
+  if (perm !== 'granted') {
+    perm = await Notification.requestPermission();
+  }
+  if (perm !== 'granted') {
+    document.getElementById('warn-box').style.display = 'block';
+    return;
+  }
+
+  document.getElementById('warn-box').style.display = 'none';
+  running = true;
+
+  const mins = parseInt(document.getElementById('interval-slider').value);
+  sendNotif();
+  timer = setInterval(sendNotif, mins * 60 * 1000);
+
+  document.getElementById('main-btn').textContent = '🔕 알림 끄기';
+  document.getElementById('main-btn').classList.add('stop-btn');
+  document.getElementById('status-dot').classList.add('on');
+  document.getElementById('status-text').textContent = mins + '분마다 알림 켜짐';
+}
+
+function stopAlarm() {
+  if (timer) clearInterval(timer);
+  timer = null;
+  running = false;
+  document.getElementById('main-btn').textContent = '🔔 알림 시작하기';
+  document.getElementById('main-btn').classList.remove('stop-btn');
+  document.getElementById('status-dot').classList.remove('on');
+  document.getElementById('status-text').textContent = '꺼짐';
+  addLog('알림 중단됨');
+}
+
+function sendNotif() {
+  const name = document.getElementById('name').value || '친구';
+  const msg = document.getElementById('msg').value || '허리 펴!';
+  new Notification(name + ', ' + msg + ' 🧘', {
+    body: '허리 수술비 천만원 !! 💸',
+    icon: 'https://cdn.jsdelivr.net/npm/twemoji@14.0.2/assets/72x72/1f9b8.png'
+  });
+  addLog(name + ', ' + msg);
+}
+
+function addLog(text) {
+  const list = document.getElementById('log-list');
+  if (list.children.length === 1 && list.children[0].querySelector('span[style]')) {
+    list.innerHTML = '';
+  }
+  const now = new Date().toLocaleTimeString('ko-KR', { hour: '2-digit', minute: '2-digit' });
+  const item = document.createElement('div');
+  item.className = 'log-item';
+  item.innerHTML = '<span>' + text + '</span><span class="log-time">' + now + '</span>';
+  list.prepend(item);
+}
+
+updatePreview();
+
+function toggleFaq(btn) {
+  const answer = btn.nextElementSibling;
+  const arrow = btn.querySelector('.faq-arrow');
+  const isOpen = answer.classList.contains('open');
+  document.querySelectorAll('.faq-a').forEach(a => a.classList.remove('open'));
+  document.querySelectorAll('.faq-arrow').forEach(a => a.classList.remove('open'));
+  if (!isOpen) {
+    answer.classList.add('open');
+    arrow.classList.add('open');
+  }
+}
+</script>
+</body>
+</html>
