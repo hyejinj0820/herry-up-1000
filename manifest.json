@@ -9,14 +9,10 @@
   "orientation": "portrait",
   "icons": [
     {
-      "src": "https://cdn.jsdelivr.net/npm/twemoji@14.0.2/assets/72x72/1f9d8.png",
-      "sizes": "72x72",
-      "type": "image/png"
-    },
-    {
-      "src": "https://cdn.jsdelivr.net/npm/twemoji@14.0.2/assets/svg/1f9d8.svg",
+      "src": "icon.svg",
       "sizes": "any",
-      "type": "image/svg+xml"
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
     }
   ]
 }
