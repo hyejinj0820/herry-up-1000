@@ -5,6 +5,11 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>허리 펴! 알리미</title>
 <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;700;900&display=swap" rel="stylesheet">
+<link rel="manifest" href="manifest.json">
+<meta name="theme-color" content="#FF6B9D">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="apple-mobile-web-app-title" content="허리펴!">
 <style>
   *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
@@ -393,6 +398,24 @@
     flex-shrink: 0;
     margin-top: 2px;
   }
+
+  .install-btn {
+    width: 100%;
+    padding: 14px;
+    border: 2px dashed var(--accent);
+    border-radius: 16px;
+    background: transparent;
+    color: var(--accent);
+    font-size: 15px;
+    font-weight: 700;
+    font-family: 'Noto Sans KR', sans-serif;
+    cursor: pointer;
+    margin-top: 10px;
+    display: none;
+    transition: background 0.15s;
+  }
+
+  .install-btn:hover { background: #FFF0F5; }
 </style>
 </head>
 <body>
@@ -435,6 +458,7 @@
   </div>
 
   <button class="start-btn" id="main-btn" onclick="toggleAlarm()">🔔 알림 시작하기</button>
+  <button class="install-btn" id="install-btn" onclick="installApp()">📲 홈 화면에 앱으로 추가하기</button>
 
   <div class="log-area">
     <div class="log-label">알림 기록</div>
@@ -583,6 +607,34 @@ function addLog(text) {
 }
 
 updatePreview();
+
+let deferredPrompt = null;
+
+if ('serviceWorker' in navigator) {
+  navigator.serviceWorker.register('sw.js').catch(function() {});
+}
+
+window.addEventListener('beforeinstallprompt', function(e) {
+  e.preventDefault();
+  deferredPrompt = e;
+  document.getElementById('install-btn').style.display = 'block';
+});
+
+window.addEventListener('appinstalled', function() {
+  document.getElementById('install-btn').style.display = 'none';
+  deferredPrompt = null;
+});
+
+async function installApp() {
+  if (deferredPrompt) {
+    deferredPrompt.prompt();
+    const result = await deferredPrompt.userChoice;
+    deferredPrompt = null;
+    document.getElementById('install-btn').style.display = 'none';
+  } else {
+    alert('홈 화면 추가 방법:\n\n📱 안드로이드: 크롬 우측 상단 ⋮ → "홈 화면에 추가"\n🍎 아이폰: 사파리 하단 공유 버튼 → "홈 화면에 추가"');
+  }
+}
 
 function toggleFaq(btn) {
   const answer = btn.nextElementSibling;

@@ -1,0 +1,22 @@
+{
+  "name": "herry-up-1000",
+  "short_name": "허리펴!",
+  "description": "허리 펴기 알림 앱",
+  "start_url": "/herry-up-1000/",
+  "display": "standalone",
+  "background_color": "#FFF5F8",
+  "theme_color": "#FF6B9D",
+  "orientation": "portrait",
+  "icons": [
+    {
+      "src": "https://cdn.jsdelivr.net/npm/twemoji@14.0.2/assets/72x72/1f9d8.png",
+      "sizes": "72x72",
+      "type": "image/png"
+    },
+    {
+      "src": "https://cdn.jsdelivr.net/npm/twemoji@14.0.2/assets/svg/1f9d8.svg",
+      "sizes": "any",
+      "type": "image/svg+xml"
+    }
+  ]
+}
