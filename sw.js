@@ -1,5 +1,25 @@
 self.addEventListener('install', (e) => self.skipWaiting());
 
+// 서버에서 실제 푸시가 왔을 때 — 헤드업 알림으로 표시됨
+self.addEventListener('push', (e) => {
+  const data = e.data ? e.data.json() : {};
+  e.waitUntil(
+    self.registration.showNotification(data.title || '허리 펴! 🧘‍♀️', {
+      body: data.body || '허리 수술비 천만원 !! 💸',
+      icon: '/herry-up-1000/icon.png',
+      badge: '/herry-up-1000/badge.png',
+      vibrate: [300, 100, 300, 100, 300],
+      tag: 'posture-alarm',
+      renotify: true,
+      silent: false,
+      actions: [
+        { action: 'ok', title: '✅ 폈어요!' },
+        { action: 'later', title: '🙈 나중에' }
+      ]
+    })
+  );
+});
+
 self.addEventListener('activate', (e) => {
   // SW가 업데이트되거나 재시작될 때 캐시에서 알람 복구
   e.waitUntil(self.clients.claim().then(resumeFromCache));

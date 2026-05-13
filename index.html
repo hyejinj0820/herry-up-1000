@@ -538,6 +538,9 @@ let running = false;
 let swReg = null;
 let pingTimer = null;
 
+// ▼ Worker 배포 후 실제 URL로 교체하세요
+const WORKER_URL = 'https://herry-up-alarm.hj-jung0820.workers.dev';
+
 function updatePreview() {
   const name = document.getElementById('name').value || '친구';
   const msg = document.getElementById('msg').value || '허리 펴!';
@@ -602,6 +605,7 @@ async function startAlarm() {
 
         addLog(name + ', ' + msg + ' (백그라운드 알림 켜짐 ✅)');
         swUsed = true;
+        subscribePush(reg, mins, name, msg).catch(e => console.log('Push 구독 실패 (로컬 알람으로 계속):', e));
       }
     } catch(e) {
       console.log('SW 준비 실패', e);
@@ -626,6 +630,7 @@ async function startAlarm() {
 }
 
 function stopAlarm() {
+  unsubscribePush();
   if ('serviceWorker' in navigator && navigator.serviceWorker.controller) {
     navigator.serviceWorker.controller.postMessage({ type: 'STOP_ALARM' });
   }
@@ -689,6 +694,41 @@ if ('serviceWorker' in navigator) {
   }).catch(function(err) {
     console.log('SW 등록 실패', err);
   });
+}
+
+// base64url → Uint8Array (pushManager.subscribe에 필요)
+function urlBase64ToUint8Array(b64url) {
+  const s = b64url.replace(/-/g, '+').replace(/_/g, '/');
+  return Uint8Array.from(atob(s + '='.repeat((4 - s.length % 4) % 4)), c => c.charCodeAt(0));
+}
+
+async function subscribePush(reg, mins, name, msg) {
+  const res = await fetch(`${WORKER_URL}/api/publickey`);
+  const { publicKey } = await res.json();
+
+  const subscription = await reg.pushManager.subscribe({
+    userVisibleOnly: true,
+    applicationServerKey: urlBase64ToUint8Array(publicKey)
+  });
+
+  await fetch(`${WORKER_URL}/api/subscribe`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ subscription: subscription.toJSON(), mins, name, msg })
+  });
+}
+
+async function unsubscribePush() {
+  if (!swReg) return;
+  try {
+    const sub = await swReg.pushManager.getSubscription();
+    if (!sub) return;
+    await fetch(`${WORKER_URL}/api/unsubscribe`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ endpoint: sub.endpoint })
+    });
+  } catch(e) {}
 }
 
 // 앱 아이콘으로 재진입 시 알람 자동 복구
