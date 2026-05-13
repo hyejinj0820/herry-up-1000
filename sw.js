@@ -43,7 +43,14 @@ function sendAlarm(name, msg) {
     body: '허리 수술비 천만원 !! 💸',
     icon: '/herry-up-1000/icon.svg',
     badge: '/herry-up-1000/icon.svg',
-    vibrate: [200, 100, 200],
-    requireInteraction: false
+    vibrate: [300, 100, 300, 100, 300],
+    requireInteraction: true,
+    tag: 'posture-alarm',
+    renotify: true,
+    silent: false,
+    actions: [
+      { action: 'ok', title: '✅ 폈어요!' },
+      { action: 'later', title: '🙈 나중에' }
+    ]
   });
 }
