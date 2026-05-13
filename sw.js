@@ -42,12 +42,13 @@ function sendAlarm(name, msg) {
   self.registration.showNotification(name + ', ' + msg + ' 🧘‍♀️', {
     body: '허리 수술비 천만원 !! 💸',
     icon: '/herry-up-1000/icon.svg',
-    badge: '/herry-up-1000/icon.svg',
+    badge: '/herry-up-1000/badge.png',
     vibrate: [300, 100, 300, 100, 300],
     requireInteraction: true,
-    tag: 'posture-alarm',
+    tag: 'posture-alarm-' + Date.now(),
     renotify: true,
     silent: false,
+    priority: 'high',
     actions: [
       { action: 'ok', title: '✅ 폈어요!' },
       { action: 'later', title: '🙈 나중에' }
