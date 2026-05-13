@@ -9,8 +9,7 @@ self.addEventListener('push', (e) => {
       icon: '/herry-up-1000/icon.png',
       badge: '/herry-up-1000/badge.png',
       vibrate: [300, 100, 300, 100, 300],
-      tag: 'posture-alarm',
-      renotify: true,
+      tag: 'posture-alarm-' + Date.now(),
       silent: false,
       actions: [
         { action: 'ok', title: '✅ 폈어요!' },
@@ -123,8 +122,7 @@ function sendAlarm(name, msg) {
     icon: '/herry-up-1000/icon.png',
     badge: '/herry-up-1000/badge.png',
     vibrate: [300, 100, 300, 100, 300],
-    tag: 'posture-alarm',
-    renotify: true,
+    tag: 'posture-alarm-' + Date.now(),
     silent: false,
     actions: [
       { action: 'ok', title: '✅ 폈어요!' },
