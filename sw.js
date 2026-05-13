@@ -11,10 +11,6 @@ self.addEventListener('push', (e) => {
       vibrate: [300, 100, 300, 100, 300],
       tag: 'posture-alarm-' + Date.now(),
       silent: false,
-      actions: [
-        { action: 'ok', title: '✅ 폈어요!' },
-        { action: 'later', title: '🙈 나중에' }
-      ]
     })
   );
 });
@@ -124,10 +120,6 @@ function sendAlarm(name, msg) {
     vibrate: [300, 100, 300, 100, 300],
     tag: 'posture-alarm-' + Date.now(),
     silent: false,
-    actions: [
-      { action: 'ok', title: '✅ 폈어요!' },
-      { action: 'later', title: '🙈 나중에' }
-    ]
   });
 }
 
