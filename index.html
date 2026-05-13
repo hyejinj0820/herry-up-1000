@@ -519,7 +519,6 @@
 </div>
 
 <script>
-let timer = null;
 let running = false;
 
 function updatePreview() {
@@ -564,8 +563,32 @@ async function startAlarm() {
   running = true;
 
   const mins = parseInt(document.getElementById('interval-slider').value);
-  sendNotif();
-  timer = setInterval(sendNotif, mins * 60 * 1000);
+  const name = document.getElementById('name').value || '친구';
+  const msg = document.getElementById('msg').value || '허리 펴!';
+
+  // SW 준비될 때까지 기다리기
+  let swReady = false;
+  if ('serviceWorker' in navigator) {
+    try {
+      const reg = await navigator.serviceWorker.ready;
+      if (reg.active) {
+        // SW에 메시지 채널로 전달
+        const sw = reg.active;
+        sw.postMessage({ type: 'START_ALARM', mins, name, msg });
+        addLog(name + ', ' + msg + ' (백그라운드 알림 켜짐 ✅)');
+        swReady = true;
+      }
+    } catch(e) {
+      console.log('SW 준비 실패', e);
+    }
+  }
+
+  // SW 없으면 폴백
+  if (!swReady) {
+    sendNotifFallback();
+    window._alarmTimer = setInterval(sendNotifFallback, mins * 60 * 1000);
+    addLog(name + ', ' + msg + ' (일반 알림 켜짐)');
+  }
 
   document.getElementById('main-btn').textContent = '🔕 알림 끄기';
   document.getElementById('main-btn').classList.add('stop-btn');
@@ -574,8 +597,13 @@ async function startAlarm() {
 }
 
 function stopAlarm() {
-  if (timer) clearInterval(timer);
-  timer = null;
+  if ('serviceWorker' in navigator && navigator.serviceWorker.controller) {
+    navigator.serviceWorker.controller.postMessage({ type: 'STOP_ALARM' });
+  }
+  if (window._alarmTimer) {
+    clearInterval(window._alarmTimer);
+    window._alarmTimer = null;
+  }
   running = false;
   document.getElementById('main-btn').textContent = '🔔 알림 시작하기';
   document.getElementById('main-btn').classList.remove('stop-btn');
@@ -584,12 +612,12 @@ function stopAlarm() {
   addLog('알림 중단됨');
 }
 
-function sendNotif() {
+function sendNotifFallback() {
   const name = document.getElementById('name').value || '친구';
   const msg = document.getElementById('msg').value || '허리 펴!';
-  new Notification(name + ', ' + msg + ' 🧘', {
+  new Notification(name + ', ' + msg + ' 🧘‍♀️', {
     body: '허리 수술비 천만원 !! 💸',
-    icon: 'https://cdn.jsdelivr.net/npm/twemoji@14.0.2/assets/72x72/1f9b8.png'
+    icon: 'icon.svg'
   });
   addLog(name + ', ' + msg);
 }
@@ -611,7 +639,11 @@ updatePreview();
 let deferredPrompt = null;
 
 if ('serviceWorker' in navigator) {
-  navigator.serviceWorker.register('sw.js').catch(function() {});
+  navigator.serviceWorker.register('sw.js').then(function(reg) {
+    console.log('SW 등록 완료', reg);
+  }).catch(function(err) {
+    console.log('SW 등록 실패', err);
+  });
 }
 
 window.addEventListener('beforeinstallprompt', function(e) {
@@ -632,7 +664,7 @@ async function installApp() {
     deferredPrompt = null;
     document.getElementById('install-btn').style.display = 'none';
   } else {
-    alert('홈 화면 추가 방법:\n\n📱 안드로이드: 크롬 우측 상단 ⋮ → "홈 화면에 추가"\n🍎 아이폰: 사파리 하단 공유 버튼 → "홈 화면에 추가"');
+    alert('홈 화면 추가 방법:\n\n📱 안드로이드: 크롬 우측 상단 ⋮ → "앱 설치"\n🍎 아이폰: 사파리 하단 공유 버튼 → "홈 화면에 추가"');
   }
 }
 
