@@ -103,7 +103,6 @@ function sendAlarm(name, msg) {
     icon: '/herry-up-1000/icon.png',
     badge: '/herry-up-1000/badge.png',
     vibrate: [300, 100, 300, 100, 300],
-    requireInteraction: true,
     tag: 'posture-alarm',
     renotify: true,
     silent: false,
