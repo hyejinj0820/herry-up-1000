@@ -416,6 +416,30 @@
   }
 
   .install-btn:hover { background: #FFF0F5; }
+
+  .toast {
+    position: fixed;
+    bottom: 28px;
+    left: 50%;
+    transform: translateX(-50%) translateY(80px);
+    background: var(--text);
+    color: white;
+    border-radius: 14px;
+    padding: 12px 20px;
+    font-size: 14px;
+    font-weight: 700;
+    font-family: 'Noto Sans KR', sans-serif;
+    z-index: 9999;
+    opacity: 0;
+    transition: transform 0.3s cubic-bezier(.34,1.56,.64,1), opacity 0.3s ease;
+    white-space: nowrap;
+    box-shadow: 0 4px 20px rgba(0,0,0,0.18);
+    pointer-events: none;
+  }
+  .toast.show {
+    transform: translateX(-50%) translateY(0);
+    opacity: 1;
+  }
 </style>
 </head>
 <body>
@@ -554,7 +578,7 @@ function updateInterval() {
 
 async function toggleAlarm() {
   if (running) {
-    stopAlarm();
+    await stopAlarm();
   } else {
     await startAlarm();
   }
@@ -605,7 +629,10 @@ async function startAlarm() {
 
         addLog(name + ', ' + msg + ' (백그라운드 알림 켜짐 ✅)');
         swUsed = true;
-        subscribePush(reg, mins, name, msg).catch(e => console.log('Push 구독 실패 (로컬 알람으로 계속):', e));
+        subscribePush(reg, mins, name, msg).catch(e => {
+          console.warn('Push 구독 실패:', e);
+          addLog('⚠️ 서버 푸시 구독 실패 — 탭 열려있을 때만 알림');
+        });
       }
     } catch(e) {
       console.log('SW 준비 실패', e);
@@ -629,8 +656,8 @@ async function startAlarm() {
   document.getElementById('status-text').textContent = mins + '분마다 알림 켜짐';
 }
 
-function stopAlarm() {
-  unsubscribePush();
+async function stopAlarm() {
+  await unsubscribePush();
   if ('serviceWorker' in navigator && navigator.serviceWorker.controller) {
     navigator.serviceWorker.controller.postMessage({ type: 'STOP_ALARM' });
   }
@@ -694,6 +721,24 @@ if ('serviceWorker' in navigator) {
   }).catch(function(err) {
     console.log('SW 등록 실패', err);
   });
+
+  navigator.serviceWorker.addEventListener('message', (e) => {
+    if (e.data && e.data.type === 'SHOW_TOAST') showToast(e.data.message);
+  });
+}
+
+function showToast(msg) {
+  let toast = document.getElementById('toast');
+  if (!toast) {
+    toast = document.createElement('div');
+    toast.id = 'toast';
+    toast.className = 'toast';
+    document.body.appendChild(toast);
+  }
+  toast.textContent = msg;
+  toast.classList.add('show');
+  clearTimeout(toast._hideTimer);
+  toast._hideTimer = setTimeout(() => toast.classList.remove('show'), 3000);
 }
 
 // base64url → Uint8Array (pushManager.subscribe에 필요)
