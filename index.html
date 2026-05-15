@@ -841,6 +841,7 @@ document.addEventListener('visibilitychange', () => {
 });
 
 async function checkPendingToast() {
+  if (document.visibilityState !== 'visible') return;
   if (!('caches' in window)) return;
   try {
     const cache = await caches.open('alarm-v1');
