@@ -32,8 +32,10 @@ self.addEventListener('notificationclick', (e) => {
 
   const openApp = () => self.clients.openWindow('/herry-up-1000/');
 
-  const isPeosyeo = e.action === 'ok';
-  const isNachunge = e.action === 'later';
+  let isAndroid = false;
+  try { isAndroid = /android/i.test(navigator.userAgent); } catch (_) {}
+  const isPeosyeo = isAndroid ? e.action === 'later' : e.action === 'ok';
+  const isNachunge = isAndroid ? e.action === 'ok'   : e.action === 'later';
 
   if (isPeosyeo) {
     e.waitUntil(
@@ -41,7 +43,7 @@ self.addEventListener('notificationclick', (e) => {
         body: '다음 알림까지 잘 유지해봐요!',
         icon: '/herry-up-1000/icon.png',
         badge: '/herry-up-1000/badge.png',
-        tag: 'feedback',
+        tag: 'feedback-ok',
         silent: true,
       })
     );
@@ -52,7 +54,7 @@ self.addEventListener('notificationclick', (e) => {
           body: '잠깐 쉬고 다시 해봐요!',
           icon: '/herry-up-1000/icon.png',
           badge: '/herry-up-1000/badge.png',
-          tag: 'feedback',
+          tag: 'feedback-later',
           silent: true,
         }),
         scheduleSnooze(5 * 60 * 1000)
