@@ -47,7 +47,7 @@ self.addEventListener('notificationclick', (e) => {
     );
   } else if (e.action === 'ok') {
     e.waitUntil(
-      self.registration.showNotification('허리수술비 또 아꼈다 💸', {
+      self.registration.showNotification('허리수술비 아꼈다 💸', {
         body: '다음 알림까지 잘 유지해봐요!',
         icon: '/herry-up-1000/icon.png',
         badge: '/herry-up-1000/badge.png',
