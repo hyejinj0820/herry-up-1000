@@ -30,32 +30,29 @@ self.addEventListener('activate', (e) => {
 self.addEventListener('notificationclick', (e) => {
   e.notification.close();
 
+  const openApp = async () => {
+    const clientList = await self.clients.matchAll({ type: 'window', includeUncontrolled: true });
+    if (clientList.length > 0) return clientList[0].focus();
+    return self.clients.openWindow('/herry-up-1000/');
+  };
+
   if (e.action === 'later') {
     e.waitUntil(
       (async () => {
-        const msg = '⏰ 5분 뒤 다시 알려드릴게요!';
-        await savePendingToast(msg);  // 캐시 먼저 저장
-        const clientList = await self.clients.matchAll({ type: 'window', includeUncontrolled: true });
-        clientList.forEach(c => c.postMessage({ type: 'CHECK_TOAST' }));
+        await savePendingToast('⏰ 5분 뒤 다시 알려드릴게요!');
+        await openApp();
         await scheduleSnooze(5 * 60 * 1000);
       })()
     );
   } else if (e.action === 'ok') {
     e.waitUntil(
       (async () => {
-        const msg = '허리수술비 또 아꼈다 💸';
-        await savePendingToast(msg);  // 캐시 먼저 저장
-        const clientList = await self.clients.matchAll({ type: 'window', includeUncontrolled: true });
-        clientList.forEach(c => c.postMessage({ type: 'CHECK_TOAST' }));
+        await savePendingToast('허리수술비 또 아꼈다 💸');
+        await openApp();
       })()
     );
   } else {
-    e.waitUntil(
-      self.clients.matchAll({ type: 'window', includeUncontrolled: true }).then(clientList => {
-        if (clientList.length > 0) return clientList[0].focus();
-        return self.clients.openWindow('/herry-up-1000/');
-      })
-    );
+    e.waitUntil(openApp());
   }
 });
 
