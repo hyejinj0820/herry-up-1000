@@ -723,7 +723,7 @@ if ('serviceWorker' in navigator) {
   });
 
   navigator.serviceWorker.addEventListener('message', (e) => {
-    if (e.data && e.data.type === 'SHOW_TOAST') showToast(e.data.message);
+    if (e.data && (e.data.type === 'SHOW_TOAST' || e.data.type === 'CHECK_TOAST')) checkPendingToast();
   });
 }
 
@@ -837,7 +837,7 @@ autoResume();
 checkPendingToast();
 
 document.addEventListener('visibilitychange', () => {
-  if (document.visibilityState === 'visible') checkPendingToast();
+  if (document.visibilityState === 'visible') setTimeout(checkPendingToast, 300);
 });
 
 async function checkPendingToast() {

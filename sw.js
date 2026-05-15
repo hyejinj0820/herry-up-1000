@@ -33,16 +33,21 @@ self.addEventListener('notificationclick', (e) => {
   if (e.action === 'later') {
     e.waitUntil(
       (async () => {
+        const msg = '⏰ 5분 뒤 다시 알려드릴게요!';
+        await savePendingToast(msg);  // 캐시 먼저 저장
         const clientList = await self.clients.matchAll({ type: 'window', includeUncontrolled: true });
-        clientList.forEach(c => c.postMessage({ type: 'SHOW_TOAST', message: '⏰ 5분 뒤 다시 알려드릴게요!' }));
+        clientList.forEach(c => c.postMessage({ type: 'CHECK_TOAST' }));
         await scheduleSnooze(5 * 60 * 1000);
       })()
     );
   } else if (e.action === 'ok') {
     e.waitUntil(
-      self.clients.matchAll({ type: 'window', includeUncontrolled: true }).then(clientList => {
-        clientList.forEach(c => c.postMessage({ type: 'SHOW_TOAST', message: '허리수술비 또 아꼈다 💸' }));
-      })
+      (async () => {
+        const msg = '허리수술비 또 아꼈다 💸';
+        await savePendingToast(msg);  // 캐시 먼저 저장
+        const clientList = await self.clients.matchAll({ type: 'window', includeUncontrolled: true });
+        clientList.forEach(c => c.postMessage({ type: 'CHECK_TOAST' }));
+      })()
     );
   } else {
     e.waitUntil(
@@ -182,6 +187,13 @@ async function scheduleSnooze(delay) {
   return new Promise(resolve => {
     setTimeout(async () => { await fire(); resolve(); }, delay);
   });
+}
+
+async function savePendingToast(message) {
+  try {
+    const cache = await caches.open('alarm-v1');
+    await cache.put('/pending-toast', new Response(message));
+  } catch(e) {}
 }
 
 // Cache Storage에 알람 설정 + 다음 알림 시각 저장
