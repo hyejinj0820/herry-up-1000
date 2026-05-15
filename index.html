@@ -756,23 +756,45 @@ async function subscribePush(reg, mins, name, msg) {
     applicationServerKey: urlBase64ToUint8Array(publicKey)
   });
 
-  await fetch(`${WORKER_URL}/api/subscribe`, {
+  const newEndpoint = subscription.endpoint;
+  const oldEndpoint = localStorage.getItem('pushEndpoint');
+
+  // 엔드포인트가 바뀐 경우 이전 KV 항목도 삭제
+  if (oldEndpoint && oldEndpoint !== newEndpoint) {
+    fetch(`${WORKER_URL}/api/unsubscribe`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ endpoint: oldEndpoint })
+    }).catch(() => {});
+  }
+
+  localStorage.setItem('pushEndpoint', newEndpoint);
+
+  const subRes = await fetch(`${WORKER_URL}/api/subscribe`, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({ subscription: subscription.toJSON(), mins, name, msg })
   });
+  if (!subRes.ok) throw new Error(`subscribe 실패: ${subRes.status}`);
 }
 
 async function unsubscribePush() {
   if (!swReg) return;
   try {
     const sub = await swReg.pushManager.getSubscription();
-    if (!sub) return;
-    await fetch(`${WORKER_URL}/api/unsubscribe`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ endpoint: sub.endpoint })
-    });
+    const endpoints = new Set();
+    if (sub) endpoints.add(sub.endpoint);
+    const stored = localStorage.getItem('pushEndpoint');
+    if (stored) endpoints.add(stored);
+
+    await Promise.all([...endpoints].map(endpoint =>
+      fetch(`${WORKER_URL}/api/unsubscribe`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ endpoint })
+      }).catch(() => {})
+    ));
+    localStorage.removeItem('pushEndpoint');
   } catch(e) {}
 }
 
@@ -812,6 +834,23 @@ async function autoResume() {
 }
 
 autoResume();
+checkPendingToast();
+
+document.addEventListener('visibilitychange', () => {
+  if (document.visibilityState === 'visible') checkPendingToast();
+});
+
+async function checkPendingToast() {
+  if (!('caches' in window)) return;
+  try {
+    const cache = await caches.open('alarm-v1');
+    const res = await cache.match('/pending-toast');
+    if (!res) return;
+    const message = await res.text();
+    await cache.delete('/pending-toast');
+    showToast(message);
+  } catch(e) {}
+}
 
 window.addEventListener('beforeinstallprompt', function(e) {
   e.preventDefault();
