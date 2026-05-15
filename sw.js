@@ -30,18 +30,14 @@ self.addEventListener('activate', (e) => {
 self.addEventListener('notificationclick', (e) => {
   e.notification.close();
 
-  const openApp = async () => {
-    const clientList = await self.clients.matchAll({ type: 'window', includeUncontrolled: true });
-    if (clientList.length > 0) return clientList[0].focus();
-    return self.clients.openWindow('/herry-up-1000/');
-  };
+  const openApp = () => self.clients.openWindow('/herry-up-1000/');
 
   if (e.action === 'later') {
     e.waitUntil(
       (async () => {
         await savePendingToast('⏰ 5분 뒤 다시 알려드릴게요!');
-        await openApp();
         await scheduleSnooze(5 * 60 * 1000);
+        await openApp();
       })()
     );
   } else if (e.action === 'ok') {

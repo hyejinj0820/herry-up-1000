@@ -837,7 +837,7 @@ autoResume();
 checkPendingToast();
 
 document.addEventListener('visibilitychange', () => {
-  if (document.visibilityState === 'visible') setTimeout(checkPendingToast, 300);
+  if (document.visibilityState === 'visible') setTimeout(checkPendingToast, 500);
 });
 
 async function checkPendingToast() {
