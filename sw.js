@@ -32,9 +32,12 @@ self.addEventListener('notificationclick', (e) => {
 
   const openApp = () => self.clients.openWindow('/herry-up-1000/');
 
-  // 이 기기에서 '폈어요' 탭 → e.action === 'later', '나중에' 탭 → e.action === 'ok'
-  if (e.action === 'later') {
-    // 폈어요
+  // 안드로이드 Chrome은 action 순서를 반대로 전달함
+  const isAndroid = /android/i.test(self.navigator.userAgent);
+  const isPeosyeo = isAndroid ? e.action === 'later' : e.action === 'ok';
+  const isNachunge = isAndroid ? e.action === 'ok'   : e.action === 'later';
+
+  if (isPeosyeo) {
     e.waitUntil(
       self.registration.showNotification('허리수술비 아꼈다 💸', {
         body: '다음 알림까지 잘 유지해봐요!',
@@ -44,8 +47,7 @@ self.addEventListener('notificationclick', (e) => {
         silent: true,
       })
     );
-  } else if (e.action === 'ok') {
-    // 나중에
+  } else if (isNachunge) {
     e.waitUntil(
       Promise.all([
         self.registration.showNotification('⏰ 5분 뒤 다시 알려드릴게요!', {
@@ -203,13 +205,6 @@ async function scheduleSnooze(delay) {
       resolve();
     }, delay);
   });
-}
-
-async function savePendingToast(message) {
-  try {
-    const cache = await caches.open('alarm-v1');
-    await cache.put('/pending-toast', new Response(message));
-  } catch(e) {}
 }
 
 // Cache Storage에 알람 설정 + 다음 알림 시각 저장
