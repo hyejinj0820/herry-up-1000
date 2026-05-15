@@ -32,6 +32,11 @@ self.addEventListener('notificationclick', (e) => {
 
   const openApp = () => self.clients.openWindow('/herry-up-1000/');
 
+  // 디버그: 어떤 action 값이 오는지 확인
+  e.waitUntil(
+    self.registration.showNotification(`눌린 버튼: "${e.action}"`, { tag: 'debug', silent: true })
+  );
+
   if (e.action === 'later') {
     e.waitUntil(
       Promise.all([
