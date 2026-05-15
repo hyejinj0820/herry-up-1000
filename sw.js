@@ -33,16 +33,27 @@ self.addEventListener('notificationclick', (e) => {
   const openApp = () => self.clients.openWindow('/herry-up-1000/');
 
   if (e.action === 'later') {
-    // 앱 열기와 스누즈를 병렬로 — openApp은 즉시, 스누즈는 5분 동안 SW 유지
     e.waitUntil(
       Promise.all([
-        savePendingToast('⏰ 5분 뒤 다시 알려드릴게요!').then(openApp),
+        self.registration.showNotification('⏰ 5분 뒤 다시 알려드릴게요!', {
+          body: '잠깐 쉬고 다시 해봐요!',
+          icon: '/herry-up-1000/icon.png',
+          badge: '/herry-up-1000/badge.png',
+          tag: 'feedback',
+          silent: true,
+        }),
         scheduleSnooze(5 * 60 * 1000)
       ])
     );
   } else if (e.action === 'ok') {
     e.waitUntil(
-      savePendingToast('허리수술비 또 아꼈다 💸').then(openApp)
+      self.registration.showNotification('허리수술비 또 아꼈다 💸', {
+        body: '다음 알림까지 잘 유지해봐요!',
+        icon: '/herry-up-1000/icon.png',
+        badge: '/herry-up-1000/badge.png',
+        tag: 'feedback',
+        silent: true,
+      })
     );
   } else {
     e.waitUntil(openApp());
@@ -108,6 +119,8 @@ async function stopCurrentAlarm() {
   self.alarmActive = false;
   if (self.releaseLock) { self.releaseLock(); self.releaseLock = null; }
   if (self.alarmTimer) { clearTimeout(self.alarmTimer); self.alarmTimer = null; }
+  if (self.releaseSnooze) { self.releaseSnooze(); self.releaseSnooze = null; }
+  if (self.snoozeTimer) { clearTimeout(self.snoozeTimer); self.snoozeTimer = null; }
   await clearConfig();
 }
 
@@ -170,12 +183,22 @@ async function scheduleSnooze(delay) {
   if ('locks' in navigator) {
     return navigator.locks.request('snooze-hold', { mode: 'shared' }, () =>
       new Promise(resolve => {
-        setTimeout(async () => { await fire(); resolve(); }, delay);
+        self.releaseSnooze = resolve;
+        self.snoozeTimer = setTimeout(async () => {
+          self.releaseSnooze = null;
+          self.snoozeTimer = null;
+          await fire();
+          resolve();
+        }, delay);
       })
     );
   }
   return new Promise(resolve => {
-    setTimeout(async () => { await fire(); resolve(); }, delay);
+    self.snoozeTimer = setTimeout(async () => {
+      self.snoozeTimer = null;
+      await fire();
+      resolve();
+    }, delay);
   });
 }
 
