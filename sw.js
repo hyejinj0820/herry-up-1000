@@ -33,19 +33,16 @@ self.addEventListener('notificationclick', (e) => {
   const openApp = () => self.clients.openWindow('/herry-up-1000/');
 
   if (e.action === 'later') {
+    // 앱 열기와 스누즈를 병렬로 — openApp은 즉시, 스누즈는 5분 동안 SW 유지
     e.waitUntil(
-      (async () => {
-        await savePendingToast('⏰ 5분 뒤 다시 알려드릴게요!');
-        await scheduleSnooze(5 * 60 * 1000);
-        await openApp();
-      })()
+      Promise.all([
+        savePendingToast('⏰ 5분 뒤 다시 알려드릴게요!').then(openApp),
+        scheduleSnooze(5 * 60 * 1000)
+      ])
     );
   } else if (e.action === 'ok') {
     e.waitUntil(
-      (async () => {
-        await savePendingToast('허리수술비 또 아꼈다 💸');
-        await openApp();
-      })()
+      savePendingToast('허리수술비 또 아꼈다 💸').then(openApp)
     );
   } else {
     e.waitUntil(openApp());
