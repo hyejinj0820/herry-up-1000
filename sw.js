@@ -32,12 +32,20 @@ self.addEventListener('notificationclick', (e) => {
 
   const openApp = () => self.clients.openWindow('/herry-up-1000/');
 
-  // 디버그: 어떤 action 값이 오는지 확인
-  e.waitUntil(
-    self.registration.showNotification(`눌린 버튼: "${e.action}"`, { tag: 'debug', silent: true })
-  );
-
+  // 이 기기에서 '폈어요' 탭 → e.action === 'later', '나중에' 탭 → e.action === 'ok'
   if (e.action === 'later') {
+    // 폈어요
+    e.waitUntil(
+      self.registration.showNotification('허리수술비 아꼈다 💸', {
+        body: '다음 알림까지 잘 유지해봐요!',
+        icon: '/herry-up-1000/icon.png',
+        badge: '/herry-up-1000/badge.png',
+        tag: 'feedback',
+        silent: true,
+      })
+    );
+  } else if (e.action === 'ok') {
+    // 나중에
     e.waitUntil(
       Promise.all([
         self.registration.showNotification('⏰ 5분 뒤 다시 알려드릴게요!', {
@@ -49,16 +57,6 @@ self.addEventListener('notificationclick', (e) => {
         }),
         scheduleSnooze(5 * 60 * 1000)
       ])
-    );
-  } else if (e.action === 'ok') {
-    e.waitUntil(
-      self.registration.showNotification('허리수술비 아꼈다 💸', {
-        body: '다음 알림까지 잘 유지해봐요!',
-        icon: '/herry-up-1000/icon.png',
-        badge: '/herry-up-1000/badge.png',
-        tag: 'feedback',
-        silent: true,
-      })
     );
   } else {
     e.waitUntil(openApp());
