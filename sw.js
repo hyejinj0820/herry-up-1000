@@ -32,10 +32,8 @@ self.addEventListener('notificationclick', (e) => {
 
   const openApp = () => self.clients.openWindow('/herry-up-1000/');
 
-  // 안드로이드 Chrome은 action 순서를 반대로 전달함
-  const isAndroid = /android/i.test(self.navigator.userAgent);
-  const isPeosyeo = isAndroid ? e.action === 'later' : e.action === 'ok';
-  const isNachunge = isAndroid ? e.action === 'ok'   : e.action === 'later';
+  const isPeosyeo = e.action === 'ok';
+  const isNachunge = e.action === 'later';
 
   if (isPeosyeo) {
     e.waitUntil(
